@@ -8,7 +8,7 @@ sieve (p:ps) =
 highest_prime = floor.sqrt.fromIntegral
 
 binary p q lo hi
-    | lo > hi  = Nothing
+    | lo > hi   = Nothing
     | t == q    = Just mid
     | t < q     = binary p q (mid + 1) hi
     | t > q     = binary p q lo (mid - 1)
@@ -17,7 +17,9 @@ binary p q lo hi
 
 main = do 
     q <- readLn :: IO Int
-    let primes = sieve [2..q]
+    let ma = highest_prime q
+    let nums = [2..ma] ++ (if q > ma then [q] else [])
+    let primes = sieve nums
     if any (\p -> binary p q 1 30 /= Nothing) primes 
-        then  putStrLn "yes" 
+        then putStrLn "yes" 
         else putStrLn "no" 
