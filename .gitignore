@@ -3,6 +3,7 @@
 !*.*
 !/**/
 *.hi
+*.in
 *.o
 *.exe
 .vscode
