@@ -1,11 +1,14 @@
-import qualified Data.Vector as V
+import Data.Map (Map, fromList, (!))
 
-type Memoizer = V.Vector (V.Vector Int)
+-- import qualified Data.Vector as V
 
-(!) :: Memoizer -> (Int, Int) -> Int
-m ! (i, c) = (m V.! i) V.! c
+-- type Memoizer = V.Vector (V.Vector Int)
 
-fromList = V.fromList
+-- (!) :: Memoizer -> (Int, Int) -> Int
+-- m ! (i, c) = (m V.! i) V.! c
+
+-- fromList = V.fromList
+
 
 newtype Result = Result { result :: [Int] } 
 instance Show Result where
@@ -15,6 +18,8 @@ type Capacity = Int
 type Value = Int
 type Index = Int
 type Weight = Int
+
+type Memoizer = Map (Index, Capacity) Int
 
 data Item = Item Index Value Weight deriving Show
 index  (Item i _ _) = i
@@ -42,8 +47,13 @@ writeOutput = unlines . map show
 
 -- Solution
 knapsack :: (Capacity, [Item]) -> Result
-knapsack (c, items) = Result (findSolution mem items c [])
-    where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
+knapsack (c, items) = Result ([mem ! (1999, 2000)])--findSolution mem items c [])
+    -- where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
+    where mem = fromList asocList
+          asocList = do 
+            c' <- [0..c]
+            i <- items 
+            return ((index i, c'), opt i c')
           opt _ 0 = 0
           opt (Item 0 v w) c
                 | w <= c    = v
