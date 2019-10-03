@@ -1,13 +1,19 @@
-import Data.Map (Map, fromList, (!))
+{- LANGUAGE BangPatterns #-}
+
+import qualified Data.Map as M -- (Map, fromList, (!))
+
+import Debug.Trace (traceShow)
 
 -- import qualified Data.Vector as V
 
 -- type Memoizer = V.Vector (V.Vector Int)
 
--- (!) :: Memoizer -> (Int, Int) -> Int
--- m ! (i, c) = (m V.! i) V.! c
+-- (!!) :: Memoizer -> (Int, Int) -> Int
+-- m !! (i, c) = (m V.! i) V.! c
 
 -- fromList = V.fromList
+
+import Prelude hiding ((!!))
 
 
 newtype Result = Result { result :: [Int] } 
@@ -19,7 +25,12 @@ type Value = Int
 type Index = Int
 type Weight = Int
 
-type Memoizer = Map (Index, Capacity) Int
+type Memoizer = M.Map (Index, Capacity) Int
+
+(!!) :: Memoizer -> (Int, Int) -> Int
+(!!) = (M.!)
+
+fromList = M.fromList
 
 data Item = Item Index Value Weight deriving Show
 index  (Item i _ _) = i
@@ -47,7 +58,7 @@ writeOutput = unlines . map show
 
 -- Solution
 knapsack :: (Capacity, [Item]) -> Result
-knapsack (c, items) = Result ([mem ! (1999, 2000)])--findSolution mem items c [])
+knapsack (c, items) = Result (findSolution mem items c [])
     -- where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
     where mem = fromList asocList
           asocList = do 
@@ -59,8 +70,8 @@ knapsack (c, items) = Result ([mem ! (1999, 2000)])--findSolution mem items c []
                 | w <= c    = v
                 | otherwise = 0
           opt (Item i v w) c 
-                | w <= c    = max (v + mem ! (i-1, c-w)) (mem ! (i-1, c))
-                | otherwise = mem ! (i-1, c)
+                | w <= c    = max (v + mem !! (i-1, c-w)) (mem !! (i-1, c))
+                | otherwise = mem !! (i-1, c)
 
 findSolution :: Memoizer -> [Item] -> Capacity -> [Int] -> [Int]
 findSolution _ _  0 acc = acc
@@ -68,7 +79,7 @@ findSolution _ [] _ acc = acc
 findSolution mem (i:items) c acc
     | weight i > c  = findSolution mem items c acc
     | j == 0 = [j]
-    | v + mem ! (j - 1, c - w) >= mem ! (j-1, c) =
+    | v + mem !! (j - 1, c - w) >= mem !! (j-1, c) =
         findSolution mem items (c - w) (j:acc)
     | otherwise = findSolution mem items c acc
     where j = index i 
