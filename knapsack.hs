@@ -1,19 +1,17 @@
-{- LANGUAGE BangPatterns #-}
-
-import qualified Data.Map as M -- (Map, fromList, (!))
+-- import qualified Data.Map as M -- (Map, fromList, (!))
 
 import Debug.Trace (traceShow)
 
--- import qualified Data.Vector as V
-
--- type Memoizer = V.Vector (V.Vector Int)
-
--- (!!) :: Memoizer -> (Int, Int) -> Int
--- m !! (i, c) = (m V.! i) V.! c
-
--- fromList = V.fromList
-
+import qualified Data.Vector as V
 import Prelude hiding ((!!))
+import Control.DeepSeq
+
+type Memoizer = V.Vector (V.Vector Int)
+
+(!!) :: Memoizer -> (Int, Int) -> Int
+m !! (i, c) = (m V.! i) V.! c
+
+fromList = V.fromList
 
 
 newtype Result = Result { result :: [Int] } 
@@ -25,12 +23,12 @@ type Value = Int
 type Index = Int
 type Weight = Int
 
-type Memoizer = M.Map (Index, Capacity) Int
+-- type Memoizer = M.Map (Index, Capacity) Int
 
-(!!) :: Memoizer -> (Int, Int) -> Int
-(!!) = (M.!)
+-- (!!) :: Memoizer -> (Int, Int) -> Int
+-- (!!) = (M.!)
 
-fromList = M.fromList
+-- fromList = M.fromList
 
 data Item = Item Index Value Weight deriving Show
 index  (Item i _ _) = i
@@ -58,13 +56,13 @@ writeOutput = unlines . map show
 
 -- Solution
 knapsack :: (Capacity, [Item]) -> Result
-knapsack (c, items) = Result (findSolution mem items c [])
-    -- where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
-    where mem = fromList asocList
-          asocList = do 
-            c' <- [0..c]
-            i <- items 
-            return ((index i, c'), opt i c')
+knapsack (c, items) = mem `deepseq` Result (findSolution mem items c [])
+    where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
+    -- where mem = fromList asocList
+    --       asocList = do 
+    --         c' <- [0..c]
+    --         i <- items 
+    --         return ((index i, c'), opt i c')
           opt _ 0 = 0
           opt (Item 0 v w) c
                 | w <= c    = v
