@@ -5,6 +5,8 @@
 *.hi
 *.in
 *.o
+*.s
+*.simple
 *.exe
 .vscode
 META-INF/
