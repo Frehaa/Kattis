@@ -1,17 +1,10 @@
--- import qualified Data.Map as M -- (Map, fromList, (!))
+
+
 
 import Debug.Trace (traceShow)
 
-import qualified Data.Vector as V
-import Prelude hiding ((!!))
-import Control.DeepSeq
 
-type Memoizer = V.Vector (V.Vector Int)
-
-(!!) :: Memoizer -> (Int, Int) -> Int
-m !! (i, c) = (m V.! i) V.! c
-
-fromList = V.fromList
+data Memoizer = Memoizer
 
 
 newtype Result = Result { result :: [Int] } 
@@ -23,14 +16,7 @@ type Value = Int
 type Index = Int
 type Weight = Int
 
--- type Memoizer = M.Map (Index, Capacity) Int
-
--- (!!) :: Memoizer -> (Int, Int) -> Int
--- (!!) = (M.!)
-
--- fromList = M.fromList
-
-data Item = Item Index Value Weight deriving Show
+data Item = Item Index Value Weight
 index  (Item i _ _) = i
 value  (Item _ v _) = v
 weight (Item _ _ w) = w
@@ -56,32 +42,9 @@ writeOutput = unlines . map show
 
 -- Solution
 knapsack :: (Capacity, [Item]) -> Result
-knapsack (c, items) = mem `deepseq` Result (findSolution mem items c [])
-    where mem = fromList [fromList (map (opt i) [0..c]) | i <- reverse items]
-    -- where mem = fromList asocList
-    --       asocList = do 
-    --         c' <- [0..c]
-    --         i <- items 
-    --         return ((index i, c'), opt i c')
-          opt _ 0 = 0
-          opt (Item 0 v w) c
-                | w <= c    = v
-                | otherwise = 0
-          opt (Item i v w) c 
-                | w <= c    = max (v + mem !! (i-1, c-w)) (mem !! (i-1, c))
-                | otherwise = mem !! (i-1, c)
+knapsack (c, items) = undefined
 
 findSolution :: Memoizer -> [Item] -> Capacity -> [Int] -> [Int]
-findSolution _ _  0 acc = acc
-findSolution _ [] _ acc = acc
-findSolution mem (i:items) c acc
-    | weight i > c  = findSolution mem items c acc
-    | j == 0 = [j]
-    | v + mem !! (j - 1, c - w) >= mem !! (j-1, c) =
-        findSolution mem items (c - w) (j:acc)
-    | otherwise = findSolution mem items c acc
-    where j = index i 
-          v = value i 
-          w = weight i
+findSolution mem items c acc = undefined
 
 main = interact(writeOutput . (map knapsack) . splitTests . readInput)
