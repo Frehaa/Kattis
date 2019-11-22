@@ -52,7 +52,7 @@ class FordFulkerson {
     for (int delta = INITIAL_DELTA; delta >= 1; delta /= 2) {
       while (hasAugmentingPath(G, s, t, delta)) {
         int bottleneck = Integer.MAX_VALUE;
-        for (int v = t; v!= s; v = edgeTo[v].other(v))
+        for (int v = t; v != s; v = edgeTo[v].other(v))
           bottleneck = Math.min(bottleneck, edgeTo[v].residualCapacityTo(v));
 
         for (int v = t; v != s; v = edgeTo[v].other(v))
@@ -93,12 +93,12 @@ class FordFulkerson {
 }
 
 class FlowNetwork {
-  private final ArrayList<HashMap<Integer, FlowEdge>> vertices;
+  private final ArrayList<ArrayList<FlowEdge>> vertices;
 
   public FlowNetwork(int V) {
-    vertices = new ArrayList<HashMap<Integer, FlowEdge>>();
+    vertices = new ArrayList<ArrayList<FlowEdge>>();
     for (int i = 0; i < V; ++i) {
-      vertices.add(new HashMap<Integer, FlowEdge>());
+      vertices.add(new ArrayList<FlowEdge>());
     }
   }
 
@@ -108,18 +108,14 @@ class FlowNetwork {
     int v = e.from();
     int w = e.to();
 
-    var oldEdge = vertices.get(v).get(w);
-    if (oldEdge != null)
-      e = new FlowEdge(v, w, oldEdge.capacity() + e.capacity());
-    
-    vertices.get(v).put(w, e);
-    vertices.get(w).put(v, e);
+    vertices.get(v).add(e);
+    vertices.get(w).add(e);
   }
 
   public Iterable<FlowEdge> adj(int v) {
     if (v >= vertices.size()) 
       throw new IllegalArgumentException("Invalid vertex");
-    return vertices.get(v).values();
+    return vertices.get(v);
   }
 
   public Iterable<FlowEdge> edges() {
@@ -136,7 +132,7 @@ class FlowNetwork {
 class FlowEdge {
   private final int v;
   private final int w;
-  private final int capacity;
+  public int capacity;
   private int flow;
 
   public FlowEdge(int v, int w, int capacity) {
