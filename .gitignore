@@ -4,6 +4,7 @@
 !/**/
 *.hi
 *.in
+*.ans
 *.o
 *.s
 *.simple
