@@ -11,3 +11,6 @@
 *.exe
 .vscode
 META-INF/
+Cargo.*
+**/target
+**/target
